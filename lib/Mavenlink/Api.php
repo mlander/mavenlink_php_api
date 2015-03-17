@@ -1,13 +1,22 @@
-<?php
+<?php namespace Mavenlink;
 
 if (!function_exists('curl_init'))
 {
   throw new Exception('Mavenlink PHP API Client requires the CURL PHP extension');
 }
 
-require_once 'classes.php';
+use Mavenlink\Api\Event;
+use Mavenlink\Api\Expense;
+use Mavenlink\Api\Invitation;
+use Mavenlink\Api\Invoice;
+use Mavenlink\Api\Participant;
+use Mavenlink\Api\Post;
+use Mavenlink\Api\Story;
+use Mavenlink\Api\TimeEntry;
+use Mavenlink\Api\User;
+use Mavenlink\Api\Workspace;
 
-class MavenlinkApi
+class Api
 {
   private static $devMode = true;
   private $loginInfo = null;
@@ -359,4 +368,4 @@ class MavenlinkApi
     return $curlHandle;
   }
 }
-?>
+

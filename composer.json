@@ -1,0 +1,12 @@
+{
+  "name": "mavenlink/mavenlink_php_api",
+  "type": "library",
+  "description": "PHP SDK for Mavenlink API",
+  "keywords": ["api", "mavenlink", "sdk"],
+  "version": "0.1",
+  "autoload": {
+    "psr-0": {
+      "Mavenlink": "lib/"
+    }
+  }
+}

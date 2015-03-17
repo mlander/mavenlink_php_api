@@ -26,7 +26,6 @@ class TestOfMavenlinkApi extends UnitTestCase
   function testLabelParamKeysLabelsKeysNotAlreadyWrapped()
   {
     $testArray = array("message" => "Hi this is a test message", "post[subject_id]" => 45, "post[subject_type]" => "Post");
-    $apiObj = new MavenlinkApi(null, null);
 
     $this->assertEqual($apiObj->labelParamKeys(Post, $testArray), array("post[message]" => "Hi this is a test message", "post[subject_id]" => 45, "post[subject_type]" => "Post"));
 
