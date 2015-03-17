@@ -5,6 +5,18 @@ if (!function_exists('curl_init'))
   throw new Exception('Mavenlink PHP API Client requires the CURL PHP extension');
 }
 
+require_once 'Api\Event.php';
+require_once 'Api\Expense.php';
+require_once 'Api\Invitation.php';
+require_once 'Api\Invoice.php';
+require_once 'Api\Participant.php';
+require_once 'Api\Post.php';
+require_once 'Api\Story.php';
+require_once 'Api\TimeEntry.php';
+require_once 'Api\User.php';
+require_once 'Api\Workspace.php';
+require_once 'Api\Object.php';
+
 use Mavenlink\Api\Event;
 use Mavenlink\Api\Expense;
 use Mavenlink\Api\Invitation;
@@ -15,6 +27,7 @@ use Mavenlink\Api\Story;
 use Mavenlink\Api\TimeEntry;
 use Mavenlink\Api\User;
 use Mavenlink\Api\Workspace;
+use Mavenlink\Api\Object;
 
 class Api
 {
