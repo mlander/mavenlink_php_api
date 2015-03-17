@@ -5,17 +5,17 @@ if (!function_exists('curl_init'))
   throw new Exception('Mavenlink PHP API Client requires the CURL PHP extension');
 }
 
-require_once 'Api\Event.php';
-require_once 'Api\Expense.php';
-require_once 'Api\Invitation.php';
-require_once 'Api\Invoice.php';
-require_once 'Api\Participant.php';
-require_once 'Api\Post.php';
-require_once 'Api\Story.php';
-require_once 'Api\TimeEntry.php';
-require_once 'Api\User.php';
-require_once 'Api\Workspace.php';
-require_once 'Api\Object.php';
+require_once dirname(__FILE__).'/Api/Object.php';
+require_once dirname(__FILE__).'/Api/Event.php';
+require_once dirname(__FILE__).'/Api/Expense.php';
+require_once dirname(__FILE__).'/Api/Invitation.php';
+require_once dirname(__FILE__).'/Api/Invoice.php';
+require_once dirname(__FILE__).'/Api/Participant.php';
+require_once dirname(__FILE__).'/Api/Post.php';
+require_once dirname(__FILE__).'/Api/Story.php';
+require_once dirname(__FILE__).'/Api/TimeEntry.php';
+require_once dirname(__FILE__).'/Api/User.php';
+require_once dirname(__FILE__).'/Api/Workspace.php';
 
 use Mavenlink\Api\Event;
 use Mavenlink\Api\Expense;
@@ -33,6 +33,7 @@ class Api
 {
   private static $devMode = true;
   private $loginInfo = null;
+    private $models_namespace = 'Mavenlink\\Api\\';
 
   function __construct($oauthToken, $production = true)
   {
@@ -247,13 +248,15 @@ class Api
 
   function getJsonForAll($model)
   {
+      $model = $this->getFullClassname($model);
     $resourcesPath = $model::getResourcesPath();
     return $this->getJson($resourcesPath);
   }
 
   function getShowJsonFor($model, $id)
   {
-    $resourcePath = $model::getResourcePath($id);
+      $model = $this->getFullClassname($model);
+      $resourcePath = $model::getResourcePath($id);
     return $this->getJson($resourcePath);
   }
 
@@ -268,7 +271,9 @@ class Api
 
   function createNew($model, $workspaceId, $params)
   {
-    $params = $this->labelParamKeys($model, array_merge($params, array('workspace_id' => $workspaceId)));
+      $model = $this->getFullClassname($model);
+
+      $params = $this->labelParamKeys($model, array_merge($params, array('workspace_id' => $workspaceId)));
 
     $newPath = $model::getResourcesPath();
     $curl     = $this->createPostRequest($newPath, $this->loginInfo, $params);
@@ -279,12 +284,15 @@ class Api
 
   function wrapParamFor($model, $arrayKey)
   {
-    return strtolower(preg_replace('/(?<=\\w)(?=[A-Z])/',"_$1", "$model") . "[$arrayKey]");
+      $model = $this->getFullClassname($model);
+
+      return strtolower(preg_replace('/(?<=\\w)(?=[A-Z])/',"_$1", "$model") . "[$arrayKey]");
   }
 
   function labelParamKeys($model, $paramsArray)
   {
-    $labelledArray = array();
+      $model = $this->getFullClassname($model);
+      $labelledArray = array();
 
     foreach ($paramsArray as $key => $value) {
 
@@ -315,7 +323,8 @@ class Api
 
   function updateModel($model, $workspaceId, $resourceId, $params)
   {
-    $updatePath = $model::getWorkspaceResourcePath($workspaceId, $resourceId);
+      $model = $this->getFullClassname($model);
+      $updatePath = $model::getWorkspaceResourcePath($workspaceId, $resourceId);
     $curl = $this->createPutRequest($updatePath, $this->loginInfo, $params);
 
     $response = curl_exec($curl);
@@ -325,7 +334,8 @@ class Api
 
   function deleteModel($model, $workspaceId, $resourceId)
   {
-    $resourcePath = $model::getWorkspaceResourcePath($workspaceId, $resourceId);
+      $model = $this->getFullClassname($model);
+      $resourcePath = $model::getWorkspaceResourcePath($workspaceId, $resourceId);
     $curl = $this->createDeleteRequest($resourcePath, $this->loginInfo);
 
     return $response = curl_exec($curl);
@@ -380,5 +390,11 @@ class Api
 
     return $curlHandle;
   }
+
+    private function getFullClassname($class)
+    {
+        return $this->models_namespace . $class;
+    }
+
 }
 
