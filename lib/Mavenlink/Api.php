@@ -45,37 +45,37 @@ class Api
 
     function getWorkspaces()
     {
-        return $this->getJsonForAll('Workspace');
+        return $this->json2collection('Workspace', $this->getJsonForAll('Workspace'));
     }
 
     function getEvents()
     {
-        return $this->getJsonForAll('Event');
+        return $this->json2collection('Event', $this->getJsonForAll('Event'));
     }
 
     function getTimeEntries()
     {
-        return $this->getJsonForAll('TimeEntry');
+        return $this->json2collection('TimeEntry', $this->getJsonForAll('TimeEntry'));
     }
 
     function getExpenses()
     {
-        return $this->getJsonForAll('Expense');
+        return $this->json2collection('Expense', $this->getJsonForAll('Expense'));
     }
 
     function getInvoices()
     {
-        return $this->getJsonForAll('Invoice');
+        return $this->json2collection('Invoice', $this->getJsonForAll('Invoice'));
     }
 
     function getStories()
     {
-        return $this->getJsonForAll('Story');
+        return Invoice('Story', $this->getJsonForAll('Story'));
     }
 
     function getUsers()
     {
-        return $this->getJsonForAll('User');
+        return $this->json2collection('User', $this->getJsonForAll('User'));
     }
 
     function getTimeEntry($id)
@@ -131,12 +131,12 @@ class Api
 
     function getAllParticipantsFromWorkspace($workspaceId)
     {
-        return $this->getJson(User::getResourcesPath() . "?participant_in=" . $workspaceId);
+        return $this->json2collection('User', $this->getJson(User::getResourcesPath() . "?participant_in=" . $workspaceId));
     }
 
     function getAllInvoicesFromWorkspace($workspaceId)
     {
-        return $this->getJson(Invoice::getResourcesPath() . "?workspace_id=" . $workspaceId);
+        return $this->json2collection('Invoice', $this->getJson(Invoice::getResourcesPath() . "?workspace_id=" . $workspaceId));
     }
 
     function getWorkspaceInvoice($workspaceId, $invoiceId)
@@ -146,7 +146,7 @@ class Api
 
     function getAllPostsFromWorkspace($workspaceId)
     {
-        return $this->getJson(Post::getResourcesPath() . "?workspace_id=" . $workspaceId);
+        return $this->json2collection('Post', $this->getJson(Post::getResourcesPath() . "?workspace_id=" . $workspaceId));
     }
 
     function createPostForWorkspace($workspaceId, $postParamsArray)
@@ -171,7 +171,7 @@ class Api
 
     function getAllStoriesFromWorkspace($workspaceId)
     {
-        return $this->getJson(Story::getResourcesPath() . "?workspace_id=" . $workspaceId);
+        return $this->json2collection('Story', $this->getJson(Story::getResourcesPath() . "?workspace_id=" . $workspaceId));
     }
 
     function createStoryForWorkspace($workspaceId, $storyParamsArray)
@@ -196,7 +196,7 @@ class Api
 
     function getAllTimeEntriesFromWorkspace($workspaceId)
     {
-        return $this->getJson(TimeEntry::getResourcesPath() . "?workspace_id=" . $workspaceId);
+        return $this->json2collection('TimeEntry', $this->getJson(TimeEntry::getResourcesPath() . "?workspace_id=" . $workspaceId));
     }
 
     function createTimeEntryForWorkspace($workspaceId, $timeEntryParamsArray)
@@ -221,7 +221,7 @@ class Api
 
     function getAllExpensesFromWorkspace($workspaceId)
     {
-        return $this->getJson(Expense::getResourcesPath() . "?workspace_id=" . $workspaceId);
+        return $this->json2collection('Expense', $this->getJson(Expense::getResourcesPath() . "?workspace_id=" . $workspaceId));
     }
 
     function createExpenseForWorkspace($workspaceId, $expenseParamsArray)
@@ -384,6 +384,24 @@ class Api
         }
 
         return $curlHandle;
+    }
+
+    public function json2collection($model, $json)
+    {
+        $model = $this->getFullClassname($model);
+        $parsed_json = json_decode($json, true);
+        $entities = $parsed_json[$model::$path];
+        $collection = array();
+        foreach($entities as $entity)
+        {
+            $object = new $model();
+            foreach($entity as $field => $value)
+            {
+                $object->{$field} = $value;
+            }
+            $collection[] = $object;
+        }
+        return $collection;
     }
 
     private function getFullClassname($class)
