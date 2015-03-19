@@ -70,7 +70,7 @@ class Api
 
     function getStories()
     {
-        return Invoice('Story', $this->getJsonForAll('Story'));
+        return $this->json2collection('Story', $this->getJsonForAll('Story'));
     }
 
     function getUsers()
@@ -169,9 +169,14 @@ class Api
         return $this->deleteModel('Post', $workspaceId, $postId);
     }
 
-    function getAllStoriesFromWorkspace($workspaceId)
+    function getAllStoriesFromWorkspace($workspaceId, $filters = array())
     {
-        return $this->json2collection('Story', $this->getJson(Story::getResourcesPath() . "?workspace_id=" . $workspaceId));
+        $filter_string = '';
+        if (count($filters))
+        {
+            $filter_string = http_build_query($filters);
+        }
+        return $this->json2collection('Story', $this->getJson(Story::getResourcesPath() . "?workspace_id=" . $workspaceId . '&' . $filter_string));
     }
 
     function createStoryForWorkspace($workspaceId, $storyParamsArray)
