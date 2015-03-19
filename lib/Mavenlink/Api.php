@@ -282,7 +282,7 @@ class Api
 
     function wrapParamFor($model, $arrayKey)
     {
-        $model = $this->getFullClassname($model);
+        $model = $this->getClassname($model);
 
         return strtolower(preg_replace('/(?<=\\w)(?=[A-Z])/', "_$1", "$model") . "[$arrayKey]");
     }
@@ -407,6 +407,17 @@ class Api
     private function getFullClassname($class)
     {
         return $this->models_namespace . $class;
+    }
+
+    private function getClassname($model)
+    {
+        $parts = explode('\\', $model);
+        if (!count($parts))
+        {
+            return 0;
+        }
+
+        return array_pop($parts);
     }
 
 }
