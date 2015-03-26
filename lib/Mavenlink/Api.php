@@ -370,7 +370,6 @@ class Api
 
     function getCurlHandle($url, $accessCredentials)
     {
-		var_dump($url);
         $curlOptions = array
         (
             CURLOPT_URL => $url,
