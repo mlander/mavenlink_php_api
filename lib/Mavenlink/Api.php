@@ -43,39 +43,39 @@ class Api
         }
     }
 
-    function getWorkspaces()
+    function getWorkspaces($filters = array())
     {
-        return $this->json2collection('Workspace', $this->getJsonForAll('Workspace'));
+        return $this->json2collection('Workspace', $this->getJsonForAll('Workspace', $filters));
     }
 
-    function getEvents()
+    function getEvents($filters = array())
     {
-        return $this->json2collection('Event', $this->getJsonForAll('Event'));
+        return $this->json2collection('Event', $this->getJsonForAll('Event', $filters));
     }
 
-    function getTimeEntries()
+    function getTimeEntries($filters = array())
     {
-        return $this->json2collection('TimeEntry', $this->getJsonForAll('TimeEntry'));
+        return $this->json2collection('TimeEntry', $this->getJsonForAll('TimeEntry', $filters));
     }
 
-    function getExpenses()
+    function getExpenses($filters = array())
     {
-        return $this->json2collection('Expense', $this->getJsonForAll('Expense'));
+        return $this->json2collection('Expense', $this->getJsonForAll('Expense', $filters));
     }
 
-    function getInvoices()
+    function getInvoices($filters = array())
     {
-        return $this->json2collection('Invoice', $this->getJsonForAll('Invoice'));
+        return $this->json2collection('Invoice', $this->getJsonForAll('Invoice', $filters));
     }
 
-    function getStories()
+    function getStories($filters = array())
     {
-        return $this->json2collection('Story', $this->getJsonForAll('Story'));
+        return $this->json2collection('Story', $this->getJsonForAll('Story', $filters));
     }
 
-    function getUsers()
+    function getUsers($filters = array())
     {
-        return $this->json2collection('User', $this->getJsonForAll('User'));
+        return $this->json2collection('User', $this->getJsonForAll('User', $filters));
     }
 
     function getTimeEntry($id)
@@ -129,14 +129,14 @@ class Api
         return $this->createNew('Invitation', $workspaceId, $invitationParamsArray);
     }
 
-    function getAllParticipantsFromWorkspace($workspaceId)
+    function getAllParticipantsFromWorkspace($workspaceId, $filters = array())
     {
-        return $this->json2collection('User', $this->getJson(User::getResourcesPath() . "?participant_in=" . $workspaceId));
+        return $this->json2collection('User', $this->getJson(User::getResourcesPath() . "?participant_in=" . $workspaceId, $filters));
     }
 
-    function getAllInvoicesFromWorkspace($workspaceId)
+    function getAllInvoicesFromWorkspace($workspaceId, $filters = array())
     {
-        return $this->json2collection('Invoice', $this->getJson(Invoice::getResourcesPath() . "?workspace_id=" . $workspaceId));
+        return $this->json2collection('Invoice', $this->getJson(Invoice::getResourcesPath() . "?workspace_id=" . $workspaceId, $filters));
     }
 
     function getWorkspaceInvoice($workspaceId, $invoiceId)
@@ -144,9 +144,9 @@ class Api
         return $this->getJson(Invoice::getWorkspaceResourcePath($workspaceId, $invoiceId));
     }
 
-    function getAllPostsFromWorkspace($workspaceId)
+    function getAllPostsFromWorkspace($workspaceId, $filters = array())
     {
-        return $this->json2collection('Post', $this->getJson(Post::getResourcesPath() . "?workspace_id=" . $workspaceId));
+        return $this->json2collection('Post', $this->getJson(Post::getResourcesPath() . "?workspace_id=" . $workspaceId, $filters));
     }
 
     function createPostForWorkspace($workspaceId, $postParamsArray)
@@ -171,12 +171,7 @@ class Api
 
     function getAllStoriesFromWorkspace($workspaceId, $filters = array())
     {
-        $filter_string = '';
-        if (count($filters))
-        {
-            $filter_string = http_build_query($filters);
-        }
-        return $this->json2collection('Story', $this->getJson(Story::getResourcesPath() . "?workspace_id=" . $workspaceId . '&' . $filter_string));
+        return $this->json2collection('Story', $this->getJson(Story::getResourcesPath() . "?workspace_id=" . $workspaceId, $filters));
     }
 
     function createStoryForWorkspace($workspaceId, $storyParamsArray)
@@ -199,9 +194,9 @@ class Api
         return $this->deleteModel('Story', $workspaceId, $storyId);
     }
 
-    function getAllTimeEntriesFromWorkspace($workspaceId)
+    function getAllTimeEntriesFromWorkspace($workspaceId, $filters = array())
     {
-        return $this->json2collection('TimeEntry', $this->getJson(TimeEntry::getResourcesPath() . "?workspace_id=" . $workspaceId));
+        return $this->json2collection('TimeEntry', $this->getJson(TimeEntry::getResourcesPath() . "?workspace_id=" . $workspaceId, $filters));
     }
 
     function createTimeEntryForWorkspace($workspaceId, $timeEntryParamsArray)
@@ -224,9 +219,9 @@ class Api
         return $this->deleteModel('TimeEntry', $workspaceId, $timeEntryId);
     }
 
-    function getAllExpensesFromWorkspace($workspaceId)
+    function getAllExpensesFromWorkspace($workspaceId, $filters = array())
     {
-        return $this->json2collection('Expense', $this->getJson(Expense::getResourcesPath() . "?workspace_id=" . $workspaceId));
+        return $this->json2collection('Expense', $this->getJson(Expense::getResourcesPath() . "?workspace_id=" . $workspaceId, $filters));
     }
 
     function createExpenseForWorkspace($workspaceId, $expenseParamsArray)
@@ -249,11 +244,11 @@ class Api
         return $this->deleteModel('Expense', $workspaceId, $expenseId);
     }
 
-    function getJsonForAll($model)
+    function getJsonForAll($model, $filters = array())
     {
         $model = $this->getFullClassname($model);
         $resourcesPath = $model::getResourcesPath();
-        return $this->getJson($resourcesPath);
+        return $this->getJson($resourcesPath, $filters);
     }
 
     function getShowJsonFor($model, $id)
@@ -263,8 +258,9 @@ class Api
         return $this->getJson($resourcePath);
     }
 
-    function getJson($path)
+    function getJson($path, $filters = array())
     {
+		$path = $this->applyFilters($path, $filters);
         $curl = $this->getCurlHandle($path, $this->loginInfo);
 
         $json = curl_exec($curl);
@@ -374,6 +370,7 @@ class Api
 
     function getCurlHandle($url, $accessCredentials)
     {
+		var_dump($url);
         $curlOptions = array
         (
             CURLOPT_URL => $url,
@@ -424,6 +421,23 @@ class Api
 
         return array_pop($parts);
     }
+
+	private function applyFilters($url, $filters= array())
+	{
+		if (!count($filters))
+		{
+			return $url;
+		}
+
+		$filters_str = $this->filtersToUrl($filters);
+		$url .= strpos($url, '?') === false ? '?' : '&';
+		return $url . $filters_str;
+	}
+
+	private function filtersToUrl($filters)
+	{
+		return http_build_query($filters);
+	}
 
 }
 
