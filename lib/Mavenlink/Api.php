@@ -244,6 +244,11 @@ class Api
         return $this->deleteModel('Expense', $workspaceId, $expenseId);
     }
 
+	public function updateStory($storyId, $updateParams)
+	{
+		return $this->updateModelObject('Story', $storyId, $updateParams);
+	}
+
     function getJsonForAll($model, $filters = array())
     {
         $model = $this->getFullClassname($model);
@@ -328,6 +333,18 @@ class Api
 
         return $response;
     }
+
+	function updateModelObject($model, $resourceId, $params)
+	{
+		$model = $this->getFullClassname($model);
+		$params = $this->labelParamKeys($this->getClassname($model), $params);
+		$updatePath = $model::getResourcePath($resourceId);
+		$curl = $this->createPutRequest($updatePath, $this->loginInfo, $params);
+
+		$response = curl_exec($curl);
+
+		return $response;
+	}
 
     function deleteModel($model, $workspaceId, $resourceId)
     {
