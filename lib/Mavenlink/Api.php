@@ -358,6 +358,8 @@ class Api
     function createPostRequest($url, $accessCredentials, $params)
     {
         $curlHandle = $this->getCurlHandle($url, $accessCredentials);
+		$params = http_build_query($params);
+		$params = preg_replace('/%5B[0-9]+%5D/simU', '%5B%5D', $params);
         curl_setopt($curlHandle, CURLOPT_POSTFIELDS, $params);
 
         return $curlHandle;
