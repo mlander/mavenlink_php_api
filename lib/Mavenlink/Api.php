@@ -249,6 +249,11 @@ class Api
 		return $this->updateModelObject('Story', $storyId, $updateParams);
 	}
 
+    public function updateTimeEntry($timeEntryId, $updateParams)
+    {
+        return $this->updateModelObject('TimeEntry', $timeEntryId, $updateParams);
+    }
+
     function getJsonForAll($model, $filters = array())
     {
         $model = $this->getFullClassname($model);
