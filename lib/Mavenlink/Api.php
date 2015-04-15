@@ -33,6 +33,9 @@ class Api
     private static $devMode = true;
     private $loginInfo = null;
     private $models_namespace = 'Mavenlink\\Api\\';
+	private $_retry_times = 3;
+	private $_timeout_after = 10; // seconds
+	private $_sleep_on_timeout = 25; // seconds
 
     function __construct($oauthToken, $production = true)
     {
@@ -108,7 +111,7 @@ class Api
         $workspaceParamsArray = $this->labelParamKeys('Workspace', $workspaceParamsArray);
         $newPath = Workspace::getResourcesPath();
         $curl = $this->createPostRequest($newPath, $this->loginInfo, $workspaceParamsArray);
-        $response = curl_exec($curl);
+        $response = $this->curlExec($curl);
 
         return $response;
     }
@@ -119,7 +122,7 @@ class Api
 
         $updatePath = Workspace::getResourcePath($workspaceId);
         $curl = $this->createPutRequest($updatePath, $this->loginInfo, $workspaceParamsArray);
-        $response = curl_exec($curl);
+        $response = $this->curlExec($curl);
 
         return $response;
     }
@@ -268,7 +271,7 @@ class Api
 		$path = $this->applyFilters($path, $filters);
         $curl = $this->getCurlHandle($path, $this->loginInfo);
 
-        $json = curl_exec($curl);
+        $json = $this->curlExec($curl);
 
         return $json;
     }
@@ -281,7 +284,7 @@ class Api
 
         $newPath = $model::getResourcesPath();
         $curl = $this->createPostRequest($newPath, $this->loginInfo, $params);
-        $response = curl_exec($curl);
+        $response = $this->curlExec($curl);
 
         return $response;
     }
@@ -329,7 +332,7 @@ class Api
         $updatePath = $model::getWorkspaceResourcePath($workspaceId, $resourceId);
         $curl = $this->createPutRequest($updatePath, $this->loginInfo, $params);
 
-        $response = curl_exec($curl);
+        $response = $this->curlExec($curl);
 
         return $response;
     }
@@ -341,7 +344,7 @@ class Api
 		$updatePath = $model::getResourcePath($resourceId);
 		$curl = $this->createPutRequest($updatePath, $this->loginInfo, $params);
 
-		$response = curl_exec($curl);
+		$response = $this->curlExec($curl);
 
 		return $response;
 	}
@@ -352,7 +355,7 @@ class Api
         $resourcePath = $model::getWorkspaceResourcePath($workspaceId, $resourceId);
         $curl = $this->createDeleteRequest($resourcePath, $this->loginInfo);
 
-        return $response = curl_exec($curl);
+        return $response = $this->curlExec($curl);
     }
 
     function createPostRequest($url, $accessCredentials, $params)
@@ -404,6 +407,9 @@ class Api
         if (self::$devMode) {
             curl_setopt($curlHandle, CURLOPT_SSL_VERIFYHOST, 0);
         }
+
+		curl_setopt($curlHandle, CURLOPT_CONNECTTIMEOUT, $this->_timeout_after);
+		curl_setopt($curlHandle, CURLOPT_TIMEOUT, $this->_timeout_after);
 
         return $curlHandle;
     }
@@ -457,6 +463,28 @@ class Api
 	private function filtersToUrl($filters)
 	{
 		return http_build_query($filters);
+	}
+
+
+	private function curlExec($resource)
+	{
+		$try_number = 1;
+		while(true)
+		{
+			if ($try_number > $this->_retry_times)
+			{
+				break;
+			}
+
+			$response = curl_exec($resource);
+			if (curl_errno($resource) != CURLE_OPERATION_TIMEDOUT)
+			{
+				break;
+			}
+			sleep($this->_sleep_on_timeout);
+			$try_number++;
+		}
+		return $response;
 	}
 
 }
