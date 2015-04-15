@@ -482,7 +482,7 @@ class Api
 			}
 
 			$response = curl_exec($resource);
-			if (curl_errno($resource) != CURLE_OPERATION_TIMEDOUT)
+			if (curl_errno($resource) != 28) // not timeout error
 			{
 				break;
 			}
