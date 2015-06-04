@@ -363,6 +363,26 @@ class Api
         return $response = $this->curlExec($curl);
     }
 
+	public function deleteStory($id)
+	{
+		return $this->deleteEntity('Story', $id);
+	}
+
+	public function deleteTimeEntry($id)
+	{
+		return $this->deleteEntity('TimeEntry', $id);
+	}
+
+
+	function deleteEntity($model, $resourceId)
+	{
+		$model = $this->getFullClassname($model);
+		$resourcePath = $model::getResourcePath($resourceId);
+		$curl = $this->createDeleteRequest($resourcePath, $this->loginInfo);
+
+		return $response = $this->curlExec($curl);
+	}
+
     function createPostRequest($url, $accessCredentials, $params)
     {
         $curlHandle = $this->getCurlHandle($url, $accessCredentials);
