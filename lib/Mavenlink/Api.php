@@ -129,7 +129,7 @@ class Api
 
     function inviteToWorkspace($workspaceId, $invitationParamsArray)
     {
-        return $this->createNew('Invitation', $workspaceId, $invitationParamsArray);
+        return $this->createNewForWorkspace('Invitation', $workspaceId, $invitationParamsArray);
     }
 
     function getAllParticipantsFromWorkspace($workspaceId, $filters = array())
@@ -292,6 +292,19 @@ class Api
         $response = $this->curlExec($curl);
 
         return $response;
+    }
+
+    function createNewForWorkspace($model, $workspaceId, $params)
+    {
+      $model = $this->getFullClassname($model);
+
+      $params = $this->labelParamKeys($model, $params);
+
+      $newPath = $model::getWorkspaceResourcesPath($workspaceId);
+      $curl = $this->createPostRequest($newPath, $this->loginInfo, $params);
+      $response = $this->curlExec($curl);
+
+      return $response;
     }
 
     function wrapParamFor($model, $arrayKey)
