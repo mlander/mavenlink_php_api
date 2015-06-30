@@ -427,7 +427,7 @@ class Api
 
     public static function getBaseUri()
     {
-        return self::$devMode ? 'https://mavenlink.local/api/v1/' : 'https://api.mavenlink.com/api/v1/';
+        return self::$devMode ? 'https://mavenlink.local/api/v1/' : 'https://fips.mavenlink.com/api/v1/';
     }
 
     function getCurlHandle($url, $accessCredentials)
