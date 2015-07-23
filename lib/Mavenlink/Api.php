@@ -129,7 +129,7 @@ class Api
 
     function inviteToWorkspace($workspaceId, $invitationParamsArray)
     {
-        return $this->createNew('Invitation', $workspaceId, $invitationParamsArray);
+        return $this->createNewForWorkspace('Invitation', $workspaceId, $invitationParamsArray);
     }
 
     function getAllParticipantsFromWorkspace($workspaceId, $filters = array())
@@ -294,6 +294,19 @@ class Api
         return $response;
     }
 
+    function createNewForWorkspace($model, $workspaceId, $params)
+    {
+      $model = $this->getFullClassname($model);
+
+      $params = $this->labelParamKeys($model, $params);
+
+      $newPath = $model::getWorkspaceResourcesPath($workspaceId);
+      $curl = $this->createPostRequest($newPath, $this->loginInfo, $params);
+      $response = $this->curlExec($curl);
+
+      return $response;
+    }
+
     function wrapParamFor($model, $arrayKey)
     {
         $model = $this->getClassname($model);
@@ -363,6 +376,26 @@ class Api
         return $response = $this->curlExec($curl);
     }
 
+	public function deleteStory($id)
+	{
+		return $this->deleteEntity('Story', $id);
+	}
+
+	public function deleteTimeEntry($id)
+	{
+		return $this->deleteEntity('TimeEntry', $id);
+	}
+
+
+	function deleteEntity($model, $resourceId)
+	{
+		$model = $this->getFullClassname($model);
+		$resourcePath = $model::getResourcePath($resourceId);
+		$curl = $this->createDeleteRequest($resourcePath, $this->loginInfo);
+
+		return $response = $this->curlExec($curl);
+	}
+
     function createPostRequest($url, $accessCredentials, $params)
     {
         $curlHandle = $this->getCurlHandle($url, $accessCredentials);
@@ -394,7 +427,7 @@ class Api
 
     public static function getBaseUri()
     {
-        return self::$devMode ? 'https://mavenlink.local/api/v1/' : 'https://api.mavenlink.com/api/v1/';
+        return self::$devMode ? 'https://mavenlink.local/api/v1/' : 'https://fips.mavenlink.com/api/v1/';
     }
 
     function getCurlHandle($url, $accessCredentials)
