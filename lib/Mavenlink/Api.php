@@ -12,6 +12,7 @@ require_once dirname(__FILE__) . '/Api/Invoice.php';
 require_once dirname(__FILE__) . '/Api/Participant.php';
 require_once dirname(__FILE__) . '/Api/Post.php';
 require_once dirname(__FILE__) . '/Api/Story.php';
+require_once dirname(__FILE__) . '/Api/Assignment.php';
 require_once dirname(__FILE__) . '/Api/TimeEntry.php';
 require_once dirname(__FILE__) . '/Api/User.php';
 require_once dirname(__FILE__) . '/Api/Workspace.php';
@@ -23,6 +24,7 @@ use Mavenlink\Api\Invoice;
 use Mavenlink\Api\Participant;
 use Mavenlink\Api\Post;
 use Mavenlink\Api\Story;
+use Mavenlink\Api\Assignment;
 use Mavenlink\Api\TimeEntry;
 use Mavenlink\Api\User;
 use Mavenlink\Api\Workspace;
@@ -95,7 +97,15 @@ class Api
     {
         return $this->getShowJsonFor('Invoice', $id);
     }
-
+    function getAssignment($id) {
+        return $this->getShowJsonFor('Assignment', $id);
+    }
+    function getAllAssignmentsFromWorkspace($workspaceId, $filters = array()) {
+        return $this->json2collection('Assignment', $this->getJson(Assignment::getResourcesPath() . "?workspace_id=" . $workspaceId, $filters));
+    }
+    function getAllAssignmentsFromUser($assigneeId, $filters = array()) {
+        return $this->json2collection('Assignment', $this->getJson(Assignment::getResourcesPath() . "?assignee_id=" . $assigneeId, $filters));
+    }
     function getStory($id)
     {
         return $this->getShowJsonFor('Story', $id);
